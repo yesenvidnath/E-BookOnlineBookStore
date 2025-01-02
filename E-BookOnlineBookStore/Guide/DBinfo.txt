@@ -433,5 +433,3 @@ INSERT INTO Payments (OrderID, CustomerID, Amount, PaymentMethod, PaymentStatus,
 (8, 10, 1200.00, 'Cash', 'Shipped', 'TXN123463'),
 (9, 11, 950.00, 'Debit Card', 'Cancelled', 'TXN123464'),
 (10, 12, 1450.00, 'Credit Card', 'Completed', 'TXN123465');
-
-
