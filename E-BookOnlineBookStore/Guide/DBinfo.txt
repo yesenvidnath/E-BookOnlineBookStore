@@ -281,6 +281,14 @@ CREATE TABLE Preferences (
 GO
 
 
+-- First alter the table to accommodate longer values
+ALTER TABLE Books
+ALTER COLUMN ISBN VARCHAR(20);
+
+ALTER TABLE Books
+ALTER COLUMN Author VARCHAR(500);
+
+
 
 
 == Sample Data For The DataBase ==
