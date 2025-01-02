@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Shop";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Filter Panel (Left Column) -->
+        <div class="col-md-3">
+            @Html.Partial("~/Views/Shared/Panels/Book/_FilterPanelBookPage.cshtml")
+        </div>
+
+        <!-- Product Panel (Right Column) -->
+        <div class="col-md-9">
+            @Html.Partial("~/Views/Shared/Panels/Common/_ProductPanel.cshtml")
+        </div>
+    </div>
+
+</div>

@@ -20,8 +20,24 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+
+/* Routs of the application */
+app.MapControllerRoute(
+    name: "shop",
+    pattern: "Shop",
+    defaults: new { controller = "Books", action = "Index" }
+);
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+app.MapControllerRoute(
+    name: "singleBook",
+    pattern: "Books/{bookId}",
+    defaults: new { controller = "Books", action = "SingleBook" }
+);
+
 
 app.Run();
