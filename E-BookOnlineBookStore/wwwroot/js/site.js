@@ -15,6 +15,22 @@ document.getElementById('togglePassword').addEventListener('click', function () 
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const togglePasswordButton = document.getElementById('toggleAdminPassword');
+    const passwordField = document.getElementById('adminPassword');
+
+    // Add click event listener to the toggle button
+    togglePasswordButton.addEventListener('click', function () {
+        const passwordFieldType = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', passwordFieldType);
+
+        // Toggle the eye icon
+        this.querySelector('i').classList.toggle('bi-eye');
+        this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+});
+
+
 // The Registration script
 document.addEventListener("DOMContentLoaded", function () {
 

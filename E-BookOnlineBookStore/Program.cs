@@ -47,7 +47,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "register",
-    pattern: "Register",
+    pattern: "Account/Register/",
     defaults: new { controller = "Home", action = "Register" }
 );
 
@@ -64,6 +64,12 @@ app.MapControllerRoute(
     name: "admin",
     pattern: "Book-Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" }
+);
+
+app.MapControllerRoute(
+    name: "adminLogin",
+    pattern: "ebs-Admin",
+    defaults: new { controller = "Admin", action = "Login" }
 );
 
 

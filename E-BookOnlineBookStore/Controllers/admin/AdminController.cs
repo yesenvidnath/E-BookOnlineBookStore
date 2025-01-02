@@ -30,6 +30,11 @@ namespace E_BookOnlineBookStore.Controllers
         public IActionResult Reports()
         {
             return View("~/Views/Account/Admin/Reports.cshtml");
+        }        
+        
+        public IActionResult Login()
+        {
+            return View("~/Views/Account/Admin/Login.cshtml");
         }
     }
 }
