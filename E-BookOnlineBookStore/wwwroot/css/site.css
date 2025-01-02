@@ -20,3 +20,13 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* The Tab styles */
+
+.step {
+    display: none;
+}
+
+.step.active {
+    display: block;
+}

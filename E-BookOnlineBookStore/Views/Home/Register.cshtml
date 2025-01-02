@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Register</h2>
+
+    <!-- Step Form -->
+    <div id="registrationForm">
+        <!-- Step 1: User Details -->
+        <div class="step active">
+            <h4>Step 1: Your Details</h4>
+            <form id="step1Form">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" placeholder="Enter your first name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" placeholder="Enter your last name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phoneNumber" placeholder="Enter your phone number" required>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea class="form-control" id="address" rows="2" placeholder="Enter your address" required></textarea>
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-3 position-relative">
+                    <label for="regPassword" class="form-label">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control reg-password" id="regPassword" placeholder="Enter your password" required>
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="regPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="mb-3 position-relative">
+                    <label for="regConfirmPassword" class="form-label">Re-enter Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control reg-password" id="regConfirmPassword" placeholder="Re-enter your password" required>
+                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="regConfirmPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <button type="button" class="btn btn-primary next-step">Next</button>
+            </form>
+        </div>
+
+
+        <!-- Step 2: Preferences Survey -->
+        <div class="step">
+            <h4>Step 2: Your Preferences</h4>
+            <form id="step2Form">
+                <div class="mb-3">
+                    <label for="preferredGenres" class="form-label">Select Your Favorite Genres</label>
+                    <div id="preferredGenres" class="form-check">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Biography" id="genreBiography">
+                            <label class="form-check-label" for="genreBiography">Biography</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Children" id="genreChildren">
+                            <label class="form-check-label" for="genreChildren">Children</label>
+                        </div>
+                        <!-- Add remaining genres dynamically if needed -->
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="Science Fiction" id="genreScienceFiction">
+                            <label class="form-check-label" for="genreScienceFiction">Science Fiction</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="preferredFormat" class="form-label">Preferred Format</label>
+                    <select id="preferredFormat" class="form-select">
+                        <option value="E-Book">E-Book</option>
+                        <option value="Paperback">Paperback</option>
+                        <option value="Hardcover">Hardcover</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="readingFrequency" class="form-label">How Often Do You Read?</label>
+                    <select id="readingFrequency" class="form-select">
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Monthly">Monthly</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary next-step">Next</button>
+            </form>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div class="step text-center">
+            <h4>Registration Successful!</h4>
+            <p>Thank you for registering. You can now log in to your account.</p>
+            <a href="/Home/Login" class="btn btn-success">Go to Login</a>
+        </div>
+    </div>
+</div>

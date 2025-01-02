@@ -2,7 +2,7 @@ using E_BookOnlineBookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace E_BookOnlineBookStore.Controllers
+namespace E_BookOnlineBookStore.Controllers.common
 {
     public class BooksController : Controller
     {

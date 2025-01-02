@@ -13,3 +13,38 @@ document.getElementById('togglePassword').addEventListener('click', function () 
     this.querySelector('i').classList.toggle('bi-eye');
     this.querySelector('i').classList.toggle('bi-eye-slash');
 });
+
+
+// The Registration script
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Add event listener for password toggle buttons in the registration form
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const passwordField = document.getElementById(targetId);
+
+            // Toggle password visibility
+            const passwordFieldType = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', passwordFieldType);
+
+            // Toggle the icon class
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+    });
+
+    const steps = document.querySelectorAll(".step");
+    const nextButtons = document.querySelectorAll(".next-step");
+
+    let currentStep = 0;
+
+    nextButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            steps[currentStep].classList.remove("active");
+            currentStep++;
+            steps[currentStep].classList.add("active");
+        });
+    });
+});

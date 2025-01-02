@@ -17,11 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\common\" />
-    <Folder Include="Controllers\customer\" />
-    <Folder Include="Controllers\admin\" />
-    <Folder Include="Controllers\admin\" />
-    <Folder Include="Controllers\customer\" />
+    <Folder Include="Views\Shared\Admin\" />
   </ItemGroup>
 
 </Project>

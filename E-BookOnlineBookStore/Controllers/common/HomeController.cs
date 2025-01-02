@@ -2,7 +2,7 @@ using E_BookOnlineBookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace E_BookOnlineBookStore.Controllers
+namespace E_BookOnlineBookStore.Controllers.common
 {
     public class HomeController : Controller
     {
@@ -27,6 +27,11 @@ namespace E_BookOnlineBookStore.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Register()
+        {
+            return View();
         }
     }
 }

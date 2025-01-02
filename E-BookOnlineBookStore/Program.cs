@@ -39,5 +39,32 @@ app.MapControllerRoute(
     defaults: new { controller = "Books", action = "SingleBook" }
 );
 
+app.MapControllerRoute(
+    name: "Orders",
+    pattern: "Orders",
+    defaults: new { controller = "Orders", action = "Index" }
+);
+
+app.MapControllerRoute(
+    name: "register",
+    pattern: "Register",
+    defaults: new { controller = "Home", action = "Register" }
+);
+
+/* Customer AccountRoutes */
+app.MapControllerRoute(
+    name: "customerDashboard",
+    pattern: "Customer/{action=Index}/{id?}",
+    defaults: new { controller = "Customer" }
+);
+
+
+/* Admin Routes */
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "Book-Admin/{action=Index}/{id?}",
+    defaults: new { controller = "Admin" }
+);
+
 
 app.Run();
