@@ -1,0 +1,437 @@
+CREATE TABLE Users (
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
+    Username VARCHAR(50) NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    Role ENUM('Admin', 'Customer') NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    PhoneNumber VARCHAR(15),
+    Address VARCHAR(255),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE Admins (
+    AdminID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Position VARCHAR(100),  -- Optional field for admin's position (e.g., Manager, Book Inventory)
+    PhoneNumber VARCHAR(15),
+    Email VARCHAR(100),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE Categories (
+    CategoryID INT PRIMARY KEY AUTO_INCREMENT,
+    CategoryName VARCHAR(100) NOT NULL,
+    Description TEXT
+);
+
+CREATE TABLE Books (
+    BookID INT PRIMARY KEY AUTO_INCREMENT,
+    Title VARCHAR(255) NOT NULL,
+    Author VARCHAR(255),
+    BookImage VARCHAR(255),
+    ISBN VARCHAR(13),
+    Description TEXT,
+    Price DECIMAL(10, 2) NOT NULL,
+    ADD CategoryID INT,
+    ADD FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE SET NULL,
+    StockQuantity INT DEFAULT 0,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    OrderStatus ENUM('Pending', 'Shipped', 'Completed', 'Cancelled') DEFAULT 'Pending',
+    TotalPrice DECIMAL(10, 2),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE
+);
+
+CREATE TABLE OrderDetails (
+    OrderDetailID INT PRIMARY KEY AUTO_INCREMENT,
+    OrderID INT,
+    BookID INT,
+    Quantity INT NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID)
+);
+
+CREATE TABLE Feedback (
+    FeedbackID INT PRIMARY KEY AUTO_INCREMENT,
+    BookID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    Rating INT CHECK (Rating >= 1 AND Rating <= 5),  -- Rating scale (1-5)
+    Comment TEXT,  
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    FOREIGN KEY (BookID) REFERENCES Books(BookID) ON DELETE CASCADE,  
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE 
+);
+
+CREATE TABLE Reports (
+    ReportID INT PRIMARY KEY AUTO_INCREMENT,
+    AdminID INT,
+    ReportType ENUM('Sales', 'Inventory', 'Customer'),
+    GeneratedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (AdminID) REFERENCES Admins(AdminID)
+);
+
+CREATE TABLE Cart (
+    CartID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE
+);
+
+CREATE TABLE CartItems (
+    CartItemID INT PRIMARY KEY AUTO_INCREMENT,
+    CartID INT,
+    BookID INT,
+    Quantity INT,
+    Price DECIMAL(10, 2),
+    FOREIGN KEY (CartID) REFERENCES Cart(CartID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID)
+);
+
+CREATE TABLE Payments (
+    PaymentID INT PRIMARY KEY AUTO_INCREMENT,
+    OrderID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    Amount DECIMAL(10, 2) NOT NULL,  -- The total amount of the payment
+    PaymentMethod ENUM('Credit Card', 'Debit Card', 'PayPal', 'Bank Transfer', 'Cash') NOT NULL, 
+    PaymentStatus ENUM('Pending', 'Completed', 'Failed', 'Refunded') DEFAULT 'Pending',
+    TransactionID VARCHAR(100),  
+    PaymentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,  
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE  
+);
+
+
+== Create DataBase For SSMS ==
+
+
+-- Create Users Table
+CREATE TABLE Users (
+    UserID INT PRIMARY KEY IDENTITY(1,1),
+    Username NVARCHAR(50) NOT NULL,
+    PasswordHash NVARCHAR(255) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    Role NVARCHAR(50) NOT NULL CHECK (Role IN ('Admin', 'Customer')),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE()
+);
+GO
+
+-- Create Customers Table
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    PhoneNumber NVARCHAR(15),
+    Address NVARCHAR(255),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+GO
+
+-- Create Admins Table
+CREATE TABLE Admins (
+    AdminID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Position NVARCHAR(100),
+    PhoneNumber NVARCHAR(15),
+    Email NVARCHAR(100),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+GO
+
+-- Create Categories Table
+CREATE TABLE Categories (
+    CategoryID INT PRIMARY KEY IDENTITY(1,1),
+    CategoryName NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(MAX)
+);
+GO
+
+-- Create Books Table
+CREATE TABLE Books (
+    BookID INT PRIMARY KEY IDENTITY(1,1),
+    Title NVARCHAR(255) NOT NULL,
+    Author NVARCHAR(255),
+    BookImage NVARCHAR(255),
+    ISBN NVARCHAR(13),
+    Description NVARCHAR(MAX),
+    Price DECIMAL(10, 2) NOT NULL,
+    CategoryID INT,
+    StockQuantity INT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE SET NULL
+);
+GO
+
+-- Create Orders Table
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY IDENTITY(1,1),
+    CustomerID INT NOT NULL,
+    OrderStatus NVARCHAR(50) DEFAULT 'Pending' CHECK (OrderStatus IN ('Pending', 'Shipped', 'Completed', 'Cancelled')),
+    TotalPrice DECIMAL(10, 2),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE
+);
+GO
+
+-- Create OrderDetails Table
+CREATE TABLE OrderDetails (
+    OrderDetailID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT NOT NULL,
+    BookID INT NOT NULL,
+    Quantity INT NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID)
+);
+GO
+
+-- Create Feedback Table
+CREATE TABLE Feedback (
+    FeedbackID INT PRIMARY KEY IDENTITY(1,1),
+    BookID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    Comment NVARCHAR(MAX),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (BookID) REFERENCES Books(BookID) ON DELETE CASCADE,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE
+);
+GO
+
+-- Create Reports Table
+CREATE TABLE Reports (
+    ReportID INT PRIMARY KEY IDENTITY(1,1),
+    AdminID INT NOT NULL,
+    ReportType NVARCHAR(50) CHECK (ReportType IN ('Sales', 'Inventory', 'Customer')),
+    GeneratedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (AdminID) REFERENCES Admins(AdminID)
+);
+GO
+
+-- Create Cart Table
+CREATE TABLE Cart (
+    CartID INT PRIMARY KEY IDENTITY(1,1),
+    CustomerID INT NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE CASCADE
+);
+GO
+
+-- Create CartItems Table
+CREATE TABLE CartItems (
+    CartItemID INT PRIMARY KEY IDENTITY(1,1),
+    CartID INT NOT NULL,
+    BookID INT NOT NULL,
+    Quantity INT NOT NULL,
+    Price DECIMAL(10, 2),
+    FOREIGN KEY (CartID) REFERENCES Cart(CartID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID)
+);
+GO
+
+-- Create Payments Table
+CREATE TABLE Payments (
+    PaymentID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    Amount DECIMAL(10, 2) NOT NULL,
+    PaymentMethod NVARCHAR(50) NOT NULL CHECK (PaymentMethod IN ('Credit Card', 'Debit Card', 'PayPal', 'Bank Transfer', 'Cash')),
+    PaymentStatus NVARCHAR(50) DEFAULT 'Pending' CHECK (PaymentStatus IN ('Pending', 'Completed', 'Failed', 'Refunded')),
+    TransactionID NVARCHAR(100),
+    PaymentDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,  
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE NO ACTION  -- Adjusted to avoid cycles
+);
+GO
+
+
+-- Create Preferences Table
+CREATE TABLE Preferences (
+    PreferenceID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    Genre NVARCHAR(50),
+    PreferredFormat NVARCHAR(50),
+    ReadingFrequency NVARCHAR(50),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+GO
+
+
+
+
+== Sample Data For The DataBase ==
+
+
+-- Insert sample data into Users table
+INSERT INTO Users (Username, PasswordHash, Email, Role) VALUES
+('admin1', 'hashedpassword1', 'admin1@domain.com', 'Admin'),
+('admin2', 'hashedpassword2', 'admin2@domain.com', 'Admin'),
+('customer1', 'hashedpassword3', 'customer1@domain.com', 'Customer'),
+('customer2', 'hashedpassword4', 'customer2@domain.com', 'Customer'),
+('customer3', 'hashedpassword5', 'customer3@domain.com', 'Customer'),
+('customer4', 'hashedpassword6', 'customer4@domain.com', 'Customer'),
+('customer5', 'hashedpassword7', 'customer5@domain.com', 'Customer'),
+('customer6', 'hashedpassword8', 'customer6@domain.com', 'Customer'),
+('customer7', 'hashedpassword9', 'customer7@domain.com', 'Customer'),
+('customer8', 'hashedpassword10', 'customer8@domain.com', 'Customer');
+
+-- Insert sample data into Customers table
+INSERT INTO Customers (UserID, FirstName, LastName, PhoneNumber, Address) VALUES
+(3, 'Saman', 'Perera', '0771234567', 'Colombo, Sri Lanka'),
+(4, 'Kamal', 'Fernando', '0712345678', 'Galle, Sri Lanka'),
+(5, 'Nimal', 'Dias', '0789876543', 'Kandy, Sri Lanka'),
+(6, 'Sunil', 'Ratnayake', '0765432123', 'Jaffna, Sri Lanka'),
+(7, 'Ruwan', 'Senanayake', '0723456789', 'Matara, Sri Lanka'),
+(8, 'Ajith', 'Karunaratne', '0759876543', 'Kurunegala, Sri Lanka'),
+(9, 'Nuwan', 'Jayasinghe', '0777654321', 'Anuradhapura, Sri Lanka'),
+(10, 'Lalith', 'Wijesekara', '0713456789', 'Gampaha, Sri Lanka'),
+(11, 'Roshan', 'Gunarathne', '0783456789', 'Ratnapura, Sri Lanka'),
+(12, 'Shan', 'Silva', '0762345678', 'Badulla, Sri Lanka');
+
+-- Insert sample data into Admins table
+INSERT INTO Admins (UserID, FirstName, LastName, Position, PhoneNumber, Email) VALUES
+(1, 'Admin', 'One', 'Manager', '0779999999', 'admin1@domain.com'),
+(2, 'Admin', 'Two', 'Sales', '0778888888', 'admin2@domain.com');
+
+-- Insert sample data into Categories table
+INSERT INTO Categories (CategoryName, Description) VALUES
+('Fiction', 'Fictional Books'),
+('Classic', 'Classic Literature'),
+('Sri Lankan Literature', 'Books from Sri Lankan authors'),
+('Drama', 'Books focused on dramatic events'),
+('Fantasy', 'Fantasy genre books'),
+('Historical', 'Books focused on history'),
+('Adventure', 'Adventure and thrillers'),
+('Children', 'Books for children'),
+('Science Fiction', 'Books about futuristic concepts'),
+('Biography', 'Books about real lives');
+
+-- Insert sample data into Books table
+INSERT INTO Books (Title, Author, BookImage, ISBN, Description, Price, CategoryID, StockQuantity) VALUES
+('Madol Doova', 'Martin Wickramasinghe', 'madol_doova.jpg', '9789555739201', 'A Sri Lankan classic about two young boys living on an island.', 750.00, 3, 20),
+'Gamperaliya', 'Martin Wickramasinghe', 'gamperaliya.jpg', '9789555739302', 'A story about the transition of a village in Sri Lanka.', 800.00, 3, 15),
+('Viragaya', 'Martin Wickramasinghe', 'viragaya.jpg', '9789555739403', 'A philosophical exploration of life by Martin Wickramasinghe.', 650.00, 2, 25),
+('Oliver Twist', 'Charles Dickens', 'oliver_twist.jpg', '9780141439747', 'The famous Charles Dickens story about an orphan boy in London.', 1200.00, 2, 30),
+('A Tale of Two Cities', 'Charles Dickens', 'tale_of_two_cities.jpg', '9780141439600', 'Set during the French Revolution, a historical drama.', 1100.00, 6, 18),
+('David Copperfield', 'Charles Dickens', 'david_copperfield.jpg', '9780140439441', 'The personal history of David Copperfield, from boy to man.', 1300.00, 2, 20),
+('Great Expectations', 'Charles Dickens', 'great_expectations.jpg', '9780141439563', 'Pip, a young orphan, is raised by his sister and dreams of becoming a gentleman.', 1000.00, 2, 15),
+('Nidhanaya', 'G.B. Senanayake', 'nidhanaya.jpg', '9789555691202', 'A Sri Lankan classic about a man in search of a treasure.', 900.00, 3, 10),
+('Little Dorrit', 'Charles Dickens', 'little_dorrit.jpg', '9780141439969', 'A story of imprisonment, freedom, and family ties.', 1400.00, 2, 22),
+('Hitchhiker\'s Guide to the Galaxy', 'Douglas Adams', 'hitchhikers_guide.jpg', '9780345391803', 'A comedic science fiction series about Arthur Dent.', 950.00, 9, 28);
+
+-- Insert sample data into Orders table
+INSERT INTO Orders (CustomerID, OrderStatus, TotalPrice) VALUES
+(3, 'Completed', 2250.00),
+(4, 'Pending', 1500.00),
+(5, 'Shipped', 1900.00),
+(6, 'Cancelled', 1300.00),
+(7, 'Completed', 2700.00),
+(8, 'Pending', 2100.00),
+(9, 'Completed', 1800.00),
+(10, 'Shipped', 1200.00),
+(11, 'Cancelled', 950.00),
+(12, 'Completed', 1450.00);
+
+-- Insert sample data into OrderDetails table
+INSERT INTO OrderDetails (OrderID, BookID, Quantity, Price) VALUES
+(1, 1, 2, 750.00),
+(2, 2, 1, 800.00),
+(3, 4, 1, 1200.00),
+(4, 3, 1, 650.00),
+(5, 6, 2, 1300.00),
+(6, 8, 1, 900.00),
+(7, 5, 1, 1100.00),
+(8, 7, 1, 1000.00),
+(9, 9, 1, 1400.00),
+(10, 10, 1, 950.00);
+
+-- Insert sample data into Feedback table
+INSERT INTO Feedback (BookID, CustomerID, Rating, Comment) VALUES
+(1, 3, 5, 'An amazing story that captures the essence of childhood adventure.'),
+(2, 4, 4, 'A classic that portrays the socio-economic changes in Sri Lanka.'),
+(3, 5, 5, 'A deep, philosophical book.'),
+(4, 6, 5, 'A timeless Dickens classic!'),
+(5, 7, 4, 'A wonderful historical drama.'),
+(6, 8, 5, 'A powerful story of personal growth.'),
+(7, 9, 5, 'Dickens at his best, an absolute must-read.'),
+(8, 10, 4, 'A very thought-provoking read.'),
+(9, 11, 4, 'A touching story about family and freedom.'),
+(10, 12, 5, 'Hilarious and brilliant science fiction!');
+
+-- Insert sample data into Reports table
+INSERT INTO Reports (AdminID, ReportType) VALUES
+(1, 'Sales'),
+(2, 'Inventory'),
+(1, 'Customer'),
+(2, 'Sales'),
+(1, 'Inventory'),
+(2, 'Customer'),
+(1, 'Sales'),
+(2, 'Inventory'),
+(1, 'Customer'),
+(2, 'Sales');
+
+-- Insert sample data into Cart table
+INSERT INTO Cart (CustomerID) VALUES
+(3),
+(4),
+(5),
+(6),
+(7),
+(8),
+(9),
+(10),
+(11),
+(12);
+
+-- Insert sample data into CartItems table
+INSERT INTO CartItems (CartID, BookID, Quantity, Price) VALUES
+(1, 1, 2, 750.00),
+(2, 2, 1, 800.00),
+(3, 4, 1, 1200.00),
+(4, 3, 1, 650.00),
+(5, 6, 2, 1300.00),
+(6, 8, 1, 900.00),
+(7, 5, 1, 1100.00),
+(8, 7, 1, 1000.00),
+(9, 9, 1, 1400.00),
+(10, 10, 1, 950.00);
+
+-- Insert sample data into Payments table
+INSERT INTO Payments (OrderID, CustomerID, Amount, PaymentMethod, PaymentStatus, TransactionID) VALUES
+(1, 3, 2250.00, 'Credit Card', 'Completed', 'TXN123456'),
+(2, 4, 1500.00, 'PayPal', 'Pending', 'TXN123457'),
+(3, 5, 1900.00, 'Debit Card', 'Completed', 'TXN123458'),
+(4, 6, 1300.00, 'Credit Card', 'Cancelled', 'TXN123459'),
+(5, 7, 2700.00, 'Bank Transfer', 'Completed', 'TXN123460'),
+(6, 8, 2100.00, 'Credit Card', 'Pending', 'TXN123461'),
+(7, 9, 1800.00, 'PayPal', 'Completed', 'TXN123462'),
+(8, 10, 1200.00, 'Cash', 'Shipped', 'TXN123463'),
+(9, 11, 950.00, 'Debit Card', 'Cancelled', 'TXN123464'),
+(10, 12, 1450.00, 'Credit Card', 'Completed', 'TXN123465');
+
+
