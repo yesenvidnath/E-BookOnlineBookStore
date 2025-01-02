@@ -17,9 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\common\" />
     <Folder Include="Controllers\customer\" />
     <Folder Include="Controllers\admin\" />
-    <Folder Include="Controllers\common\" />
+    <Folder Include="Controllers\admin\" />
+    <Folder Include="Controllers\customer\" />
   </ItemGroup>
 
 </Project>

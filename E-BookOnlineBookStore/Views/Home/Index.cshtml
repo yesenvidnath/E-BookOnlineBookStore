@@ -1,8 +1,25 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Filter Panel -->
+@Html.Partial("~/Views/Shared/Carousel/_HomeCarousel.cshtml")
+
+<!-- Search Bar Section -->
+<div class="container my-4">
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search books..." aria-label="Search books">
+        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterPanel" aria-controls="filterPanel">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
+    </div>
 </div>
+
+<!-- Filter Panel -->
+@Html.Partial("~/Views/Shared/Panels/_FilterPanel.cshtml")
+
+<!-- Product Panel -->
+@Html.Partial("~/Views/Shared/Panels/_ProductPanel.cshtml")
+
+<!-- Include Single Product Modal -->
+@Html.Partial("~/Views/Shared/Panels/Common/_SingleProductPanel.cshtml")
