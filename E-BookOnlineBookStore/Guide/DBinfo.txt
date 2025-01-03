@@ -461,7 +461,10 @@ CREATE PROCEDURE RegisterUser
     @LastName NVARCHAR(50),
     @PhoneNumber NVARCHAR(15),
     @Address NVARCHAR(255),
-    @Position NVARCHAR(100) = NULL -- Optional, only required for Admins
+    @Position NVARCHAR(100) = NULL, -- Optional, only required for Admins
+    @Genre NVARCHAR(50) = NULL, -- Optional, only for Customers
+    @PreferredFormat NVARCHAR(50) = NULL, -- Optional, only for Customers
+    @ReadingFrequency NVARCHAR(50) = NULL -- Optional, only for Customers
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -482,6 +485,10 @@ BEGIN
         BEGIN
             INSERT INTO Customers (UserID)
             VALUES (@UserID);
+
+            -- Insert into Preferences table for Customer role
+            INSERT INTO Preferences (UserID, Genre, PreferredFormat, ReadingFrequency)
+            VALUES (@UserID, @Genre, @PreferredFormat, @ReadingFrequency);
         END
         ELSE IF @Role = 'Admin'
         BEGIN
@@ -514,4 +521,41 @@ BEGIN
 END
 GO
 
+
 02. Get Book info
+-- Stored Procedure to Get Books by CategoryID
+CREATE PROCEDURE GetBooksByCategory
+    @CategoryID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if the CategoryID exists in the Categories table
+    IF EXISTS (SELECT 1 FROM Categories WHERE CategoryID = @CategoryID)
+    BEGIN
+        -- Retrieve category information and related books
+        SELECT 
+            c.CategoryID, 
+            c.CategoryName, 
+            c.Description AS CategoryDescription,
+            b.BookID,
+            b.Title,
+            b.Author,
+            b.BookImage,
+            b.ISBN,
+            b.Description AS BookDescription,
+            b.Price,
+            b.StockQuantity,
+            b.CreatedAt,
+            b.UpdatedAt
+        FROM Categories c
+        LEFT JOIN Books b ON c.CategoryID = b.CategoryID
+        WHERE c.CategoryID = @CategoryID;
+    END
+    ELSE
+    BEGIN
+        -- Return an error message if the CategoryID is not found
+        RAISERROR ('CategoryID not found.', 16, 1);
+    END
+END
+GO

@@ -1,9 +1,14 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -45,11 +50,18 @@ app.MapControllerRoute(
     defaults: new { controller = "Orders", action = "Index" }
 );
 
+//app.MapControllerRoute(
+//    name: "register",
+//    pattern: "Account/Register/",
+//    defaults: new { controller = "Home", action = "Register" }
+//);
+
 app.MapControllerRoute(
     name: "register",
-    pattern: "Account/Register/",
-    defaults: new { controller = "Home", action = "Register" }
+    pattern: "Account/Register/{action=Index}/{id?}",
+    defaults: new { controller = "Register" }
 );
+
 
 /* Customer AccountRoutes */
 app.MapControllerRoute(

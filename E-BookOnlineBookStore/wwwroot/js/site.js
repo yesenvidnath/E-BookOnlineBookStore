@@ -51,16 +51,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const steps = document.querySelectorAll(".step");
-    const nextButtons = document.querySelectorAll(".next-step");
-
+    const steps = document.querySelectorAll('.step');
+    const nextButtons = document.querySelectorAll('.next-step');
     let currentStep = 0;
 
-    nextButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            steps[currentStep].classList.remove("active");
+    // Show the current step and hide others
+    function showStep(stepIndex) {
+        steps.forEach((step, index) => {
+            step.style.display = index === stepIndex ? 'block' : 'none';
+        });
+    }
+
+    // Initialize the first step
+    showStep(currentStep);
+
+    // Next button event listeners
+    nextButtons.forEach((button) => {
+        button.addEventListener('click', () => {
             currentStep++;
-            steps[currentStep].classList.add("active");
+            showStep(currentStep);
         });
     });
 });
