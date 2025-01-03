@@ -90,5 +90,11 @@ app.MapControllerRoute(
     defaults: new { controller = "ManageBooks", action = "Index" }
 );
 
+app.MapControllerRoute(
+    name: "manageOrders",
+    pattern: "admin/manage-orders",
+    defaults: new { controller = "ManageOrders", action = "Index" }
+);
+
 
 app.Run();
