@@ -84,5 +84,11 @@ app.MapControllerRoute(
     defaults: new { controller = "Admin", action = "Login" }
 );
 
+app.MapControllerRoute(
+    name: "manageBooks",
+    pattern: "admin/manage-books",
+    defaults: new { controller = "ManageBooks", action = "Index" }
+);
+
 
 app.Run();
