@@ -16,18 +16,28 @@ namespace E_BookOnlineBookStore.Controllers.Admin
             _connectionString = _configuration.GetConnectionString("EBookDatabase");
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string query = null)
         {
             DataTable customersTable = new DataTable();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"SELECT Users.UserID, Users.Username, Users.Email, Users.Role, Users.FirstName, Users.LastName, Users.PhoneNumber, Users.Address, Users.CreatedAt, Users.UpdatedAt, Customers.CustomerID 
-                                FROM Users 
-                                LEFT JOIN Customers ON Users.UserID = Customers.UserID 
-                                WHERE Users.Role = 'Customer' OR Users.Role = 'Admin'";
+                // Base SQL query
+                string sqlQuery = @"SELECT * FROM Users";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                // Apply search filter if query is provided
+                if (!string.IsNullOrWhiteSpace(query))
                 {
+                    sqlQuery += " WHERE (Users.FirstName LIKE @Query OR Users.LastName LIKE @Query OR Users.Username LIKE @Query " +
+                                "OR Users.PhoneNumber LIKE @Query OR Users.Email LIKE @Query)";
+                }
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    if (!string.IsNullOrWhiteSpace(query))
+                    {
+                        command.Parameters.AddWithValue("@Query", "%" + query + "%");
+                    }
+
                     connection.Open();
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     adapter.Fill(customersTable);
