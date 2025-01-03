@@ -559,3 +559,89 @@ BEGIN
     END
 END
 GO
+
+03. Insert Books
+
+-- Use the EBookDatabase
+USE EBookDatabase;
+GO
+
+CREATE PROCEDURE InsertBook
+    @Title NVARCHAR(255),
+    @Author NVARCHAR(255),
+    @BookImage NVARCHAR(255),
+    @ISBN NVARCHAR(13),
+    @Description NVARCHAR(MAX),
+    @Price DECIMAL(10, 2),
+    @CategoryId INT,
+    @StockQuantity INT
+AS
+BEGIN
+    INSERT INTO Books (Title, Author, BookImage, ISBN, Description, Price, CategoryId, StockQuantity, CreatedAt, UpdatedAt)
+    VALUES (@Title, @Author, @BookImage, @ISBN, @Description, @Price, @CategoryId, @StockQuantity, GETDATE(), GETDATE());
+END;
+GO
+
+04. Update Book Info
+
+-- Use the EBookDatabase
+USE EBookDatabase;
+GO
+
+CREATE PROCEDURE UpdateBook
+    @BookId INT,
+    @Title NVARCHAR(255),
+    @Author NVARCHAR(255),
+    @BookImage NVARCHAR(255),
+    @ISBN NVARCHAR(13),
+    @Description NVARCHAR(MAX),
+    @Price DECIMAL(10, 2),
+    @CategoryId INT,
+    @StockQuantity INT
+AS
+BEGIN
+    UPDATE Books
+    SET Title = @Title,
+        Author = @Author,
+        BookImage = @BookImage,
+        ISBN = @ISBN,
+        Description = @Description,
+        Price = @Price,
+        CategoryId = @CategoryId,
+        StockQuantity = @StockQuantity,
+        UpdatedAt = GETDATE()
+    WHERE BookId = @BookId;
+END;
+GO
+
+05. Delete Books
+
+-- Use the EBookDatabase
+USE EBookDatabase;
+GO
+
+CREATE PROCEDURE DeleteBook
+    @BookId INT
+AS
+BEGIN
+    DELETE FROM Books WHERE BookId = @BookId;
+END;
+GO
+
+06. Search Books
+
+-- Use the EBookDatabase
+USE EBookDatabase;
+GO
+
+CREATE PROCEDURE SearchBooks
+    @SearchTerm NVARCHAR(255)
+AS
+BEGIN
+    SELECT * 
+    FROM Books
+    WHERE Title LIKE '%' + @SearchTerm + '%'
+       OR Author LIKE '%' + @SearchTerm + '%'
+       OR ISBN LIKE '%' + @SearchTerm + '%';
+END;
+GO
