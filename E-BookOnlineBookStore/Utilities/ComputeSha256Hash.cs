@@ -12,16 +12,19 @@ namespace E_BookOnlineBookStore.Utilities
         /// <returns>The SHA-256 hash as a hexadecimal string.</returns>
         public string Encrypt(string input)
         {
+            if (string.IsNullOrEmpty(input))
+            {
+                throw new ArgumentNullException(nameof(input), "Input cannot be null or empty.");
+            }
+
             using (SHA256 sha256Hash = SHA256.Create())
             {
-                // Compute the hash as a byte array
                 byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
 
-                // Convert byte array to a string
                 StringBuilder builder = new StringBuilder();
                 foreach (var b in bytes)
                 {
-                    builder.Append(b.ToString("x2")); // Converts to a lowercase hex string
+                    builder.Append(b.ToString("x2"));
                 }
                 return builder.ToString();
             }
