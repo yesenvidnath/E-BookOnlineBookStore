@@ -10,12 +10,12 @@ namespace E_BookOnlineBookStore.Controllers
     public class AccountController : Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly ComputeSha256Hash _hashUtility;
+        private readonly Utilities.ComputeSha256Hash _hashUtility;
 
         public AccountController(IConfiguration configuration)
         {
             _configuration = configuration;
-            _hashUtility = new ComputeSha256Hash(); // SHA-256 utility class
+            _hashUtility = new Utilities.ComputeSha256Hash(); // SHA-256 utility class
         }
 
         [HttpPost]
