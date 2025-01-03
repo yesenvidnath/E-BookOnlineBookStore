@@ -16,14 +16,24 @@ namespace E_BookOnlineBookStore.Controllers.Admin
             _connectionString = _configuration.GetConnectionString("EBookDatabase");
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string query = null)
         {
             DataTable booksTable = new DataTable();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = "SELECT * FROM Books";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                string sqlQuery = "SELECT * FROM Books";
+                if (!string.IsNullOrWhiteSpace(query))
                 {
+                    sqlQuery += " WHERE Title LIKE @Query OR Author LIKE @Query";
+                }
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    if (!string.IsNullOrWhiteSpace(query))
+                    {
+                        command.Parameters.AddWithValue("@Query", "%" + query + "%");
+                    }
+
                     connection.Open();
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     adapter.Fill(booksTable);
@@ -101,6 +111,5 @@ namespace E_BookOnlineBookStore.Controllers.Admin
             }
             return Ok();
         }
-
     }
 }
