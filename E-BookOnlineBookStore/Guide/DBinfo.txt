@@ -559,3 +559,40 @@ BEGIN
     END
 END
 GO
+
+
+03. Get all Books 
+CREATE PROCEDURE GetBooks
+    @CategoryID INT = NULL,       -- Optional: Filter by category ID
+    @Author NVARCHAR(255) = NULL, -- Optional: Filter by author name
+    @MinPrice DECIMAL(10, 2) = NULL, -- Optional: Minimum price
+    @MaxPrice DECIMAL(10, 2) = NULL, -- Optional: Maximum price
+    @Title NVARCHAR(255) = NULL    -- Optional: Filter by book title
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        b.BookID,
+        b.Title,
+        b.Author,
+        b.BookImage,
+        b.ISBN,
+        b.Description AS BookDescription,
+        b.Price,
+        b.StockQuantity,
+        b.CreatedAt,
+        b.UpdatedAt,
+        c.CategoryID,
+        c.CategoryName,
+        c.Description AS CategoryDescription
+    FROM Books b
+    INNER JOIN Categories c ON b.CategoryID = c.CategoryID
+    WHERE 
+        (@CategoryID IS NULL OR b.CategoryID = @CategoryID) AND
+        (@Author IS NULL OR b.Author LIKE '%' + @Author + '%') AND
+        (@MinPrice IS NULL OR b.Price >= @MinPrice) AND
+        (@MaxPrice IS NULL OR b.Price <= @MaxPrice) AND
+        (@Title IS NULL OR b.Title LIKE '%' + @Title + '%')
+    ORDER BY b.Title;
+END;

@@ -21,14 +21,15 @@ namespace E_BookOnlineBookStore.Controllers
         {
             try
             {
+                // Existing login logic
                 string connectionString = _configuration.GetConnectionString("DefaultConnection");
-
                 string storedPasswordHash = null;
                 string userName = null;
+                int userId = 0;
 
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    string query = "SELECT PasswordHash, Username FROM Users WHERE Email = @Email";
+                    string query = "SELECT PasswordHash, Username, UserId FROM Users WHERE Email = @Email";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Email", email);
@@ -39,6 +40,7 @@ namespace E_BookOnlineBookStore.Controllers
                             {
                                 storedPasswordHash = reader["PasswordHash"]?.ToString();
                                 userName = reader["Username"]?.ToString();
+                                userId = Convert.ToInt32(reader["UserId"]);
                             }
                         }
                     }
@@ -53,7 +55,11 @@ namespace E_BookOnlineBookStore.Controllers
 
                 if (result == PasswordVerificationResult.Success)
                 {
-                    return Ok(new { message = $"Welcome back, {userName}!" });
+                    HttpContext.Session.SetInt32("UserId", userId);
+                    HttpContext.Session.SetString("UserName", userName);
+
+                    // Redirect to the home page or reload the current page
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -66,5 +72,16 @@ namespace E_BookOnlineBookStore.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            TempData["LogoutMessage"] = "You have been successfully logged out.";
+            return RedirectToAction("Index", "Home");
+        }
+
+
     }
+
 }
+

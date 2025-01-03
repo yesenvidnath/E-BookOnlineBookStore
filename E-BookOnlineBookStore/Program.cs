@@ -1,9 +1,12 @@
+using E_BookOnlineBookStore.Data;
+using E_BookOnlineBookStore.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-
+// Add services to the container
 builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -15,12 +18,11 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseHsts(); // The default HSTS value is 30 days.
 }
 
 app.UseSession();
@@ -31,6 +33,16 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+/* Define Application Routes */
+
+// Shop Routes
+/* Products Routes */
+app.MapControllerRoute(
+    name: "getProducts",
+    pattern: "Products/GetProducts",
+    defaults: new { controller = "Products", action = "GetProducts" }
+);
 
 
 /* Routs of the application */
@@ -69,14 +81,12 @@ app.MapControllerRoute(
     defaults: new { controller = "Register" }
 );
 
-
 /* Customer AccountRoutes */
 app.MapControllerRoute(
     name: "customerDashboard",
     pattern: "Customer/{action=Index}/{id?}",
     defaults: new { controller = "Customer" }
 );
-
 
 /* Admin Routes */
 app.MapControllerRoute(
