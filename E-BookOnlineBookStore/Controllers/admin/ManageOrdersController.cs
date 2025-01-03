@@ -16,14 +16,27 @@ namespace E_BookOnlineBookStore.Controllers.Admin
             _connectionString = _configuration.GetConnectionString("EBookDatabase");
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string query = null)
         {
             DataTable ordersTable = new DataTable();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = "SELECT * FROM Orders";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                string sqlQuery = "SELECT Orders.*, Users.Username AS CustomerName FROM Orders " +
+                                  "JOIN Customers ON Orders.CustomerID = Customers.CustomerID " +
+                                  "JOIN Users ON Customers.UserID = Users.UserID";
+
+                if (!string.IsNullOrWhiteSpace(query))
                 {
+                    sqlQuery += " WHERE Users.Username LIKE @Query";
+                }
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    if (!string.IsNullOrWhiteSpace(query))
+                    {
+                        command.Parameters.AddWithValue("@Query", "%" + query + "%");
+                    }
+
                     connection.Open();
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     adapter.Fill(ordersTable);
