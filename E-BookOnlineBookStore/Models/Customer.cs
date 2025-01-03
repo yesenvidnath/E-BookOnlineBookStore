@@ -9,14 +9,6 @@ public partial class Customer
 
     public int UserId { get; set; }
 
-    public string? FirstName { get; set; }
-
-    public string? LastName { get; set; }
-
-    public string? PhoneNumber { get; set; }
-
-    public string? Address { get; set; }
-
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();

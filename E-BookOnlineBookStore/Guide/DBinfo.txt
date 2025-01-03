@@ -130,6 +130,10 @@ CREATE TABLE Users (
     PasswordHash NVARCHAR(255) NOT NULL,
     Email NVARCHAR(100) NOT NULL,
     Role NVARCHAR(50) NOT NULL CHECK (Role IN ('Admin', 'Customer')),
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    PhoneNumber NVARCHAR(15),
+    Address NVARCHAR(255),
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE()
 );
@@ -139,10 +143,7 @@ GO
 CREATE TABLE Customers (
     CustomerID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
-    FirstName NVARCHAR(50),
-    LastName NVARCHAR(50),
-    PhoneNumber NVARCHAR(15),
-    Address NVARCHAR(255),
+
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 GO
@@ -151,11 +152,7 @@ GO
 CREATE TABLE Admins (
     AdminID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
-    FirstName NVARCHAR(50),
-    LastName NVARCHAR(50),
     Position NVARCHAR(100),
-    PhoneNumber NVARCHAR(15),
-    Email NVARCHAR(100),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 GO
@@ -289,6 +286,9 @@ ALTER TABLE Books
 ALTER COLUMN Author VARCHAR(500);
 
 
+
+ dotnet ef dbcontext scaffold "Data Source=YESEN\SQLEXPRESS01;Initial Catalog=BookDatabase;Integrated Security=True;Trust Server Certificate=True" Microsoft.EntityFrameworkCore.SqlServer -o Models -t dbo.Users -t dbo.Customers -t dbo.Admins -t dbo.Categories -t dbo.Books -t dbo.Orders -t dbo.OrderDetails -t dbo.Feedback -t dbo.Reports -t dbo.Cart -t dbo.CartItems -t dbo.Payments -t
+ dbo.Preferences --force
 
 
 == Sample Data For The DataBase ==
@@ -441,3 +441,77 @@ INSERT INTO Payments (OrderID, CustomerID, Amount, PaymentMethod, PaymentStatus,
 (8, 10, 1200.00, 'Cash', 'Shipped', 'TXN123463'),
 (9, 11, 950.00, 'Debit Card', 'Cancelled', 'TXN123464'),
 (10, 12, 1450.00, 'Credit Card', 'Completed', 'TXN123465');
+
+
+
+
+========================================================================
+
+Procedures 
+
+01. Registration 
+
+-- Stored Procedure to Register a Customer or Admin
+CREATE PROCEDURE RegisterUser
+    @Username NVARCHAR(50),
+    @PasswordHash NVARCHAR(255),
+    @Email NVARCHAR(100),
+    @Role NVARCHAR(50), -- Should be either 'Admin' or 'Customer'
+    @FirstName NVARCHAR(50),
+    @LastName NVARCHAR(50),
+    @PhoneNumber NVARCHAR(15),
+    @Address NVARCHAR(255),
+    @Position NVARCHAR(100) = NULL -- Optional, only required for Admins
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Insert into Users table
+        INSERT INTO Users (Username, PasswordHash, Email, Role, FirstName, LastName, PhoneNumber, Address, CreatedAt, UpdatedAt)
+        VALUES (@Username, @PasswordHash, @Email, @Role, @FirstName, @LastName, @PhoneNumber, @Address, GETDATE(), GETDATE());
+
+        -- Get the newly inserted UserID
+        DECLARE @UserID INT;
+        SET @UserID = SCOPE_IDENTITY();
+
+        -- Check Role and insert into the corresponding table
+        IF @Role = 'Customer'
+        BEGIN
+            INSERT INTO Customers (UserID)
+            VALUES (@UserID);
+        END
+        ELSE IF @Role = 'Admin'
+        BEGIN
+            IF @Position IS NULL
+            BEGIN
+                RAISERROR ('Position is required for Admin role.', 16, 1);
+                ROLLBACK TRANSACTION;
+                RETURN;
+            END
+
+            INSERT INTO Admins (UserID, Position)
+            VALUES (@UserID, @Position);
+        END
+        ELSE
+        BEGIN
+            RAISERROR ('Invalid role specified. Must be either "Customer" or "Admin".', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Handle errors
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+02. Get Book info
