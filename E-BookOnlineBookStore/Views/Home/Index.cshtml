@@ -6,14 +6,14 @@
 @Html.Partial("~/Views/Shared/Carousel/_HomeCarousel.cshtml")
 
 <!-- Search Bar Section -->
-<div class="container my-4">
-    <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search books..." aria-label="Search books">
-        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterPanel" aria-controls="filterPanel">
-            <i class="bi bi-funnel"></i> Filter
+<div class="mb-3">
+    <form id="searchForm" class="input-group">
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterPanel" aria-controls="filterPanel">
+            <i class="bi bi-funnel"></i> Filters
         </button>
-    </div>
+    </form>
 </div>
+
 
 
 <!-- Filter Panel -->

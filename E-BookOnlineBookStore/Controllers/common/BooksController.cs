@@ -84,5 +84,19 @@ namespace E_BookOnlineBookStore.Controllers.Common
         {
             return GetAllBooks(bookID);
         }
+
+        [HttpGet("/Books/{bookId}")]
+        public IActionResult SingleBook(int bookId)
+        {
+            var bookDetails = GetAllBooks(bookId);
+            if (bookDetails is JsonResult result && result.Value is List<dynamic> books && books.Any())
+            {
+                var book = books.First();
+                return View("SingleBook", book);
+            }
+
+            return NotFound("Book not found");
+        }
+
     }
 }
