@@ -34,4 +34,11 @@ public partial class Book
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+
+
+    // Encapsulation
+    public bool IsInStock()
+    {
+        return StockQuantity > 0;
+    }
 }

@@ -5,16 +5,9 @@ using E_BookOnlineBookStore.Models;
 
 namespace E_BookOnlineBookStore.Controllers.Admin
 {
-    public class ManageCustomerController : Controller
+    public class ManageCustomerController : BaseController
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
-
-        public ManageCustomerController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("EBookDatabase");
-        }
+        public ManageCustomerController(IConfiguration configuration) : base(configuration) { }
 
         public IActionResult Index(string query = null)
         {

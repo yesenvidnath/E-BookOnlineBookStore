@@ -1,4 +1,5 @@
 ﻿using E_BookOnlineBookStore.Models;
+using E_BookOnlineBookStore.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -6,15 +7,13 @@ using System.Text;
 
 namespace E_BookOnlineBookStore.Controllers.Admin
 {
-    public class ManageReportsController : Controller
+    public class ManageReportsController : BaseController
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
+        private readonly ReportService _reportService;
 
-        public ManageReportsController(IConfiguration configuration)
+        public ManageReportsController(IConfiguration configuration) : base(configuration)
         {
-            _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("EBookDatabase");
+            _reportService = new ReportService();
         }
 
         // Action to display the report in the view
@@ -44,17 +43,6 @@ namespace E_BookOnlineBookStore.Controllers.Admin
             return View("~/Views/Account/Admin/Reports.cshtml", reportTable);
         }
 
-        // Action to generate and download the HTML report
-        public IActionResult GenerateHtmlReport()
-        {
-            DataTable reportTable = GetReportData();
-
-            string htmlContent = GenerateHtmlContent(reportTable);
-            byte[] fileBytes = Encoding.UTF8.GetBytes(htmlContent);
-
-            return File(fileBytes, "text/html", "BooksReport.html");
-        }
-
         // Fetch report data
         private DataTable GetReportData()
         {
@@ -82,30 +70,15 @@ namespace E_BookOnlineBookStore.Controllers.Admin
         }
 
         // Generate HTML content for the report
-        private string GenerateHtmlContent(DataTable reportTable)
+        public IActionResult GenerateHtmlReport()
         {
-            StringBuilder htmlContent = new StringBuilder();
+            DataTable reportTable = GetReportData();
 
-            htmlContent.Append("<html><head><title>Books Report</title></head><body>");
-            htmlContent.Append("<h1>Books Report</h1>");
-            htmlContent.Append("<table border='1' style='width: 100%; border-collapse: collapse;'>");
-            htmlContent.Append("<tr><th>Title</th><th>Author</th><th>Category</th><th>Price</th><th>Stock Quantity</th></tr>");
+            // Use the ReportService to generate HTML content
+            string htmlContent = _reportService.GenerateBooksHtmlReport(reportTable);
+            byte[] fileBytes = Encoding.UTF8.GetBytes(htmlContent);
 
-            foreach (DataRow row in reportTable.Rows)
-            {
-                htmlContent.Append("<tr>");
-                htmlContent.Append($"<td>{row["Title"]}</td>");
-                htmlContent.Append($"<td>{row["Author"]}</td>");
-                htmlContent.Append($"<td>{row["CategoryName"]}</td>");
-                htmlContent.Append($"<td>{row["Price"]:C}</td>");
-                htmlContent.Append($"<td>{row["StockQuantity"]}</td>");
-                htmlContent.Append("</tr>");
-            }
-
-            htmlContent.Append("</table>");
-            htmlContent.Append("</body></html>");
-
-            return htmlContent.ToString();
+            return File(fileBytes, "text/html", "BooksReport.html");
         }
     }
 }

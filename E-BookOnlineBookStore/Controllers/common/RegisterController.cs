@@ -1,21 +1,19 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using E_BookOnlineBookStore.Utilities;
-
 
 namespace E_BookOnlineBookStore.Controllers
 {
     public class RegisterController : Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly ComputeSha256Hash _sha256Hash;
+        private readonly PasswordHasher<string> _passwordHasher;
 
         public RegisterController(IConfiguration configuration)
         {
             _configuration = configuration;
-            _sha256Hash = new ComputeSha256Hash(); // Instantiate the SHA-256 utility
+            _passwordHasher = new PasswordHasher<string>(); // Instantiate the password hasher
         }
 
         [HttpGet]
@@ -26,16 +24,17 @@ namespace E_BookOnlineBookStore.Controllers
 
         [HttpPost]
         public IActionResult RegisterUser(string firstName, string lastName, string phoneNumber,
-                                         string address, string password, string[] genres,
-                                         string preferredFormat, string readingFrequency)
+                                          string address, string email, string password,
+                                          string[] genres, string preferredFormat,
+                                          string readingFrequency)
         {
             try
             {
                 // Get the connection string
-                string connectionString = _configuration.GetConnectionString("DefaultConnection");
+                string connectionString = _configuration.GetConnectionString("EBookDatabase");
 
-                // Hash the password using SHA-256
-                string passwordHash = _sha256Hash.Encrypt(password);
+                // Hash the password using ASP.NET Core's PasswordHasher
+                string passwordHash = _passwordHasher.HashPassword(null, password);
 
                 // Join selected genres into a single string
                 string genreString = genres != null ? string.Join(",", genres) : null;
@@ -44,13 +43,13 @@ namespace E_BookOnlineBookStore.Controllers
                 {
                     using (SqlCommand command = new SqlCommand("RegisterUser", connection))
                     {
-                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
 
                         // Add parameters
-                        command.Parameters.AddWithValue("@Username", firstName.ToLower() + lastName.ToLower()); // Example username
+                        command.Parameters.AddWithValue("@Username", email.Split('@')[0]); // Example: username from email prefix
                         command.Parameters.AddWithValue("@PasswordHash", passwordHash);
-                        command.Parameters.AddWithValue("@Email", $"{firstName.ToLower()}.{lastName.ToLower()}@example.com"); // Example email
-                        command.Parameters.AddWithValue("@Role", "Customer"); // Hardcoded role
+                        command.Parameters.AddWithValue("@Email", email); // Use the email provided by the user
+                        command.Parameters.AddWithValue("@Role", "Customer"); // Hardcoded as Customer
                         command.Parameters.AddWithValue("@FirstName", firstName);
                         command.Parameters.AddWithValue("@LastName", lastName);
                         command.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
@@ -59,6 +58,7 @@ namespace E_BookOnlineBookStore.Controllers
                         command.Parameters.AddWithValue("@PreferredFormat", preferredFormat ?? (object)DBNull.Value);
                         command.Parameters.AddWithValue("@ReadingFrequency", readingFrequency ?? (object)DBNull.Value);
 
+                        // Open connection and execute
                         connection.Open();
                         command.ExecuteNonQuery();
                     }
@@ -68,10 +68,10 @@ namespace E_BookOnlineBookStore.Controllers
             }
             catch (Exception ex)
             {
+                // Handle errors
                 return BadRequest(new { message = ex.Message });
             }
         }
-
 
         [HttpGet]
         public IActionResult Success()

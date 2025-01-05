@@ -560,6 +560,7 @@ BEGIN
 END
 GO
 
+<<<<<<< HEAD
 03. Insert Books
 
 -- Use the EBookDatabase
@@ -645,3 +646,41 @@ BEGIN
        OR ISBN LIKE '%' + @SearchTerm + '%';
 END;
 GO
+=======
+
+03. Get all Books 
+CREATE PROCEDURE GetBooks
+    @CategoryID INT = NULL,       -- Optional: Filter by category ID
+    @Author NVARCHAR(255) = NULL, -- Optional: Filter by author name
+    @MinPrice DECIMAL(10, 2) = NULL, -- Optional: Minimum price
+    @MaxPrice DECIMAL(10, 2) = NULL, -- Optional: Maximum price
+    @Title NVARCHAR(255) = NULL    -- Optional: Filter by book title
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        b.BookID,
+        b.Title,
+        b.Author,
+        b.BookImage,
+        b.ISBN,
+        b.Description AS BookDescription,
+        b.Price,
+        b.StockQuantity,
+        b.CreatedAt,
+        b.UpdatedAt,
+        c.CategoryID,
+        c.CategoryName,
+        c.Description AS CategoryDescription
+    FROM Books b
+    INNER JOIN Categories c ON b.CategoryID = c.CategoryID
+    WHERE 
+        (@CategoryID IS NULL OR b.CategoryID = @CategoryID) AND
+        (@Author IS NULL OR b.Author LIKE '%' + @Author + '%') AND
+        (@MinPrice IS NULL OR b.Price >= @MinPrice) AND
+        (@MaxPrice IS NULL OR b.Price <= @MaxPrice) AND
+        (@Title IS NULL OR b.Title LIKE '%' + @Title + '%')
+    ORDER BY b.Title;
+END;
+>>>>>>> bb49784fffcf9b3f40c22f467421f9e3163baad3

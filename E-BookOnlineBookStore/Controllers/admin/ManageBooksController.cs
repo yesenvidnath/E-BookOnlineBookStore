@@ -5,111 +5,152 @@ using System.Data;
 
 namespace E_BookOnlineBookStore.Controllers.Admin
 {
-    public class ManageBooksController : Controller
+    public class ManageBooksController : BaseController
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
-
-        public ManageBooksController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("EBookDatabase");
-        }
+        public ManageBooksController(IConfiguration configuration) : base(configuration) { }
 
         public IActionResult Index(string query = null)
         {
-            DataTable booksTable = new DataTable();
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                string sqlQuery = "SELECT * FROM Books";
-                if (!string.IsNullOrWhiteSpace(query))
+                DataTable booksTable = new DataTable();
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    sqlQuery += " WHERE Title LIKE @Query OR Author LIKE @Query";
-                }
-
-                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
-                {
+                    string sqlQuery = "SELECT * FROM Books";
                     if (!string.IsNullOrWhiteSpace(query))
                     {
-                        command.Parameters.AddWithValue("@Query", "%" + query + "%");
+                        sqlQuery += " WHERE Title LIKE @Query OR Author LIKE @Query";
                     }
 
-                    connection.Open();
-                    SqlDataAdapter adapter = new SqlDataAdapter(command);
-                    adapter.Fill(booksTable);
-                }
-            }
+                    using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                    {
+                        if (!string.IsNullOrWhiteSpace(query))
+                        {
+                            command.Parameters.AddWithValue("@Query", "%" + query + "%");
+                        }
 
-            return View("~/Views/Account/Admin/Books.cshtml", booksTable);
+                        connection.Open();
+                        SqlDataAdapter adapter = new SqlDataAdapter(command);
+                        adapter.Fill(booksTable);
+                    }
+                }
+
+                return View("~/Views/Account/Admin/Books.cshtml", booksTable);
+            }
+            catch (Exception ex)
+            {
+                // Log the error (you can replace this with a proper logging mechanism)
+                Console.WriteLine($"Error in Index: {ex.Message}");
+                return BadRequest(new { message = "An error occurred while fetching books." });
+            }
         }
 
         [HttpPost]
         public IActionResult Create([FromBody] Book newBook)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            if (newBook == null)
             {
-                string query = "INSERT INTO Books (Title, Author, ISBN, Description, Price, CategoryID, StockQuantity, CreatedAt, UpdatedAt) " +
-                               "VALUES (@Title, @Author, @ISBN, @Description, @Price, @CategoryID, @StockQuantity, GETDATE(), GETDATE())";
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@Title", newBook.Title);
-                    command.Parameters.AddWithValue("@Author", newBook.Author ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@ISBN", newBook.Isbn ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Description", newBook.Description ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Price", newBook.Price);
-                    command.Parameters.AddWithValue("@CategoryID", newBook.CategoryId ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@StockQuantity", newBook.StockQuantity);
-
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
+                return BadRequest(new { message = "Invalid book data." });
             }
-            return Ok();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "INSERT INTO Books (Title, Author, ISBN, Description, Price, CategoryID, StockQuantity, CreatedAt, UpdatedAt) " +
+                                   "VALUES (@Title, @Author, @ISBN, @Description, @Price, @CategoryID, @StockQuantity, GETDATE(), GETDATE())";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Title", newBook.Title ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Author", newBook.Author ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@ISBN", newBook.Isbn ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Description", newBook.Description ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Price", newBook.Price);
+                        command.Parameters.AddWithValue("@CategoryID", newBook.CategoryId ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@StockQuantity", newBook.StockQuantity);
+
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return Ok(new { message = "Book created successfully." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Create: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred while creating the book." });
+            }
         }
 
         [HttpPost]
         public IActionResult Update([FromBody] Book updatedBook)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                string query = "UPDATE Books " +
-                               "SET Title = @Title, Author = @Author, ISBN = @ISBN, Description = @Description, " +
-                               "Price = @Price, CategoryID = @CategoryID, StockQuantity = @StockQuantity, UpdatedAt = GETDATE() " +
-                               "WHERE BookID = @BookID";
-
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    command.Parameters.AddWithValue("@BookID", updatedBook.BookId);
-                    command.Parameters.AddWithValue("@Title", updatedBook.Title);
-                    command.Parameters.AddWithValue("@Author", updatedBook.Author ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@ISBN", updatedBook.Isbn ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Description", updatedBook.Description ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Price", updatedBook.Price);
-                    command.Parameters.AddWithValue("@CategoryID", updatedBook.CategoryId ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@StockQuantity", updatedBook.StockQuantity);
+                    string query = "UPDATE Books " +
+                                   "SET Title = @Title, Author = @Author, ISBN = @ISBN, Description = @Description, " +
+                                   "Price = @Price, CategoryID = @CategoryID, StockQuantity = @StockQuantity, UpdatedAt = GETDATE() " +
+                                   "WHERE BookID = @BookID";
 
-                    connection.Open();
-                    command.ExecuteNonQuery();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@BookID", updatedBook.BookId);
+                        command.Parameters.AddWithValue("@Title", updatedBook.Title);
+                        command.Parameters.AddWithValue("@Author", updatedBook.Author ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@ISBN", updatedBook.Isbn ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Description", updatedBook.Description ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Price", updatedBook.Price);
+                        command.Parameters.AddWithValue("@CategoryID", updatedBook.CategoryId ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@StockQuantity", updatedBook.StockQuantity);
+
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
+                return Ok(new { message = "Book updated successfully." });
             }
-            return Ok();
+            catch (SqlException sqlEx)
+            {
+                Console.WriteLine($"SQL Error in Update: {sqlEx.Message}");
+                return BadRequest(new { message = "A database error occurred while updating the book." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Update: {ex.Message}");
+                return BadRequest(new { message = "An error occurred while updating the book." });
+            }
         }
 
         [HttpDelete]
         public IActionResult Delete(int id)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                string query = "DELETE FROM Books WHERE BookID = @BookID";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    command.Parameters.AddWithValue("@BookID", id);
+                    string query = "DELETE FROM Books WHERE BookID = @BookID";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@BookID", id);
 
-                    connection.Open();
-                    command.ExecuteNonQuery();
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
+                return Ok(new { message = "Book deleted successfully." });
             }
-            return Ok();
+            catch (SqlException sqlEx)
+            {
+                Console.WriteLine($"SQL Error in Delete: {sqlEx.Message}");
+                return BadRequest(new { message = "A database error occurred while deleting the book." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Delete: {ex.Message}");
+                return BadRequest(new { message = "An error occurred while deleting the book." });
+            }
         }
     }
 }
